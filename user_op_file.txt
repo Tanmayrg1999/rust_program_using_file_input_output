@@ -1,0 +1,5 @@
+aarya	pune	IIT	2156712.31	twenty One lakh fifty six thousand seven hundred twelve 31/100
+
+tanmay	nagpur	mit	912232334.45	ninety One crore twenty two lakh thirty two thousand three hundred thirty four 45/100
+
+vijay	mumbai	wpu	123222	One lakh twenty three thousand two hundred twenty two 

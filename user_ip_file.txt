@@ -1,0 +1,3 @@
+aarya,pune,IIT,2156712.31,
+tanmay,nagpur,mit,912232334.45,
+vijay,mumbai,wpu,123222
