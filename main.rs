@@ -4,11 +4,15 @@ mod hindi;
 mod gujrati;
 mod marathi;
 use std::i32;
-use std::io;
 use std::io::{BufRead, BufReader};
 use std::fs::File;
+use std::io::Write;
 use std::io::prelude::*;
+use std::path::Path;
 use std::fs::OpenOptions;
+use std::ffi::CString;
+use std::io;
+use std::str;
 fn main() {
     let mut output = String::new();
     let mut file = File::open("C:/Users/tanma/CLionProjects/untitled/src/user_ip_file.txt")
@@ -19,9 +23,9 @@ fn main() {
     for line in content.lines() {
         tot = tot + 1;
     }
+    let mut file = File::create("user_output.txt");
+    let mut file1=OpenOptions::new().append(true).open("user_output.txt").expect("unable to open output file");
     let strings: Vec<&str> = content.split(",").collect(); // ["bananas", "apples", "pear"]
-    //println!("{:?}", strings);
-    // println!("total input data are: {}",tot);
     let mut i = 1;
     for i in 1..tot + 1
     {
@@ -35,36 +39,102 @@ fn main() {
         let _fn: f64 = _diff * f64::from(100); //decimal value converted to integer by multiplying 100 to it
         let _int_fn = _fn.round();
         if line < 100 {
+            output.push_str("INR ");
             output.push_str(&*english::hashmap_english2(line));
             if _int_fn != 0.0 {
                 output.push_str(&*(_int_fn).to_string());
-                output.push_str("/100\n");
+                output.push_str("/100,");
             } else {
-                output.push_str("\n");
+                output.push_str(",");
 
             }
         } else {
+            output.push_str("INR ");
             output.push_str(&*english::hashmap_english3(line));
             if _int_fn != 0.0 {
                 output.push_str(&*(_int_fn).to_string());
-                output.push_str("/100\n");
+                output.push_str("/100,");
             } else {
-                output.push_str("\n");
+                output.push_str(",");
             }
         }
-        // println!("{}",output);
-        let mut file = OpenOptions::new().append(true).open("C:/Users/tanma/CLionProjects/untitled/src/user_op_file.txt").expect(
-            "cannot open file");
         let mut x=0;
         let mut y=i-1;
         for x in 0..4 {
-                file.write_all(strings[(4*y+x)as usize].as_bytes()).expect("write failed");
-                file.write_all("\t".as_bytes()).expect("write failed");
+                file1.write_all(strings[(4*y+x)as usize].as_bytes()).expect("write failed");
+                file1.write_all(",".as_bytes()).expect("write failed");
         }
-        file.write_all(output.as_bytes()).expect("write failed");
+        file1.write_all(output.as_bytes()).expect("write failed");
         println!("file append success");
         output = "".to_string();
     }
+    println!("{}",read_op());
+    println!("UPDATE IP IS:");
+    println!("{}",read_ip());
+}
+fn read_op()->String
+{
+    let mut output = String::new();
+    let mut file = File::open("C:/Users/tanma/CLionProjects/untitled/user_output.txt")
+        .expect("unable to open the  file");
+    let mut content = String::new();
+    file.read_to_string(&mut content).expect("unable to load data");
+    let strings: Vec<&str> = content.split(",").collect();
+    content.push_str("\r
+    ++++\n");
+    content
+}
+fn read_ip()->String
+{
+    let mut output = String::new();
+    let mut file = File::open("C:/Users/tanma/CLionProjects/untitled/src/user_ip_file.txt")
+        .expect("unable to open the  file");
+    let mut content = String::new();
+    file.read_to_string(&mut content).expect("unable to load data");
+    let mut strings= String::new();
+    let mut i=0;
+    let mut tot1: i32 = 0;
+    for line in content.lines() {
+        tot1 = tot1 + 1;
+    }
+    let mut tot=0;
+    let vector: Vec<&str> = content.split(",").collect(); // ["bananas", "apples", "pear"]
+    for line in content.lines() {
+       // strings.push_str(" ");
+        strings.push_str(line);
+      //  println!("{}",vector[(tot*4+3) as usize]);
+        let intamount: f64 = vector[(tot*4+3) as usize]
+            .trim()
+            .parse()
+            .ok()
+            .expect("Program only process numbers,Enter number"); //converting string input to integer
+        let amount = intamount as i32; //integer currency
+        let _diff: f64 = intamount - f64::from(amount);
+        let _fn: f64 = _diff * f64::from(100); //decimal value converted to integer by multiplying 100 to it
+        let _int_fn = _fn.round(); // rounding the decimal equivalent
+        if amount < 100 {
+            strings.push_str("INR ");
+            strings.push_str(&*english::hashmap_english2(amount));
+            if _int_fn != 0.0 {
+                strings.push_str(&*(_int_fn).to_string());
+                strings.push_str("/100,\r\n");
+            } else {
+                strings.push_str(",\r\n");
+
+            }
+        } else {
+            strings.push_str("INR ");
+            strings.push_str(&*english::hashmap_english3(amount));
+            if _int_fn != 0.0 {
+                strings.push_str(&*(_int_fn).to_string());
+                strings.push_str("/100,\r\n");
+            } else {
+                strings.push_str(",\r\n");
+            }
+        }
+        tot=tot+1;
+    }
+    strings
 }
     /*
     let mut _dec = String::new(); //asking user input in string format
@@ -98,48 +168,48 @@ pub mod tests {
     use super::*;
     #[test]
     fn test_case1() {
-        assert_eq!(english::hashmap_english2(98), "ninety eight ");
+        assert_eq!(english::hashmap_english2(98), "Ninety Eight ");
     }
     #[test]
     fn test_case2() {
-        assert_eq!(english::hashmap_english2(9), "nine ");
+        assert_eq!(english::hashmap_english2(9), "Nine ");
     }
     #[test]
     fn test_case3() {
-        assert_eq!(english::hashmap_english3(316), "three hundred sixteen ");
+        assert_eq!(english::hashmap_english3(316), "Three Hundred Sixteen ");
     }
     #[test]
     fn test_case4() {
         assert_eq!(
             english::hashmap_english3(3168),
-            "three thousand One hundred sixty eight "
+            "Three Thousand One Hundred Sixty Eight "
         );
     }
     #[test]
     fn test_case5() {
         assert_eq!(
             english::hashmap_english3(31698),
-            "thirty One thousand six hundred ninety eight "
+            "Thirty One Thousand Six Hundred Ninety Eight "
         );
     }
     #[test]
     fn test_case6() {
-        assert_eq!(english::hashmap_english3(100000), "One lakh ");
+        assert_eq!(english::hashmap_english3(100000), "One Lakh ");
     }
     #[test]
     fn test_case7() {
         assert_eq!(
             english::hashmap_english3(1023456),
-            "ten lakh twenty three thousand four hundred fifty six "
+            "Ten Lakh Twenty Three Thousand Four Hundred Fifty Six "
         );
     }
     #[test]
     fn test_case8() {
-        assert_eq!(english::hashmap_english3(10000000), "One crore ");
+        assert_eq!(english::hashmap_english3(10000000), "One Crore ");
     }
     #[test]
     fn test_case9() {
-        assert_eq!(english::hashmap_english3(100000000), "ten crore ");
+        assert_eq!(english::hashmap_english3(100000000), "Ten Crore ");
     }
     #[test]
     fn test_case10() {
@@ -285,5 +355,9 @@ pub mod tests {
     }#[test]
     fn test_case50() {
         assert_eq!(gujrati::hashmap_gujrati2(1100000000), "No out of range ");
+    }
+    #[test]
+    fn test_case51() {
+        assert_eq!(read_ip(),read_op());
     }
 }
